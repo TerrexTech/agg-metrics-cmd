@@ -1,11 +1,8 @@
 package metric
 
 import (
-	"encoding/json"
-
 	util "github.com/TerrexTech/go-commonutils/commonutil"
 	"github.com/TerrexTech/uuuid"
-	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/bson/objectid"
 	"github.com/pkg/errors"
 )
@@ -24,87 +21,97 @@ type Metric struct {
 	Humidity      float64           `bson:"humidity,omitempty" json:"humidity,omitempty"`
 	Ethylene      float64           `bson:"ethylene,omitempty" json:"ethylene,omitempty"`
 	CarbonDioxide float64           `bson:"carbonDioxide,omitempty" json:"carbonDioxide,omitempty"`
+
+	Items []SoldItem `bson:"items,omitempty" json:"items,omitempty"`
 }
 
-// MarshalBSON returns bytes of BSON-type.
-func (m *Metric) MarshalBSON() ([]byte, error) {
-	mm := map[string]interface{}{
-		"metricID":      m.MetricID.String(),
-		"itemID":        m.ItemID.String(),
-		"deviceID":      m.DeviceID.String(),
-		"timestamp":     m.Timestamp,
-		"tempIn":        m.TempIn,
-		"humidity":      m.Humidity,
-		"ethylene":      m.Ethylene,
-		"carbonDioxide": m.CarbonDioxide,
-	}
-
-	if m.ID != objectid.NilObjectID {
-		mm["_id"] = m.ID
-	}
-
-	mar, err := bson.Marshal(mm)
-	if err != nil {
-		err = errors.Wrap(err, "MarshalJSON Error")
-	}
-	return mar, err
+type SoldItem struct {
+	ItemID  uuuid.UUID `bson:"itemID,omitempty" json:"itemID,omitempty"`
+	Barcode string     `bson:"barcode,omitempty" json:"barcode,omitempty"`
+	Weight  float64    `bson:"weight,omitempty" json:"weight,omitempty"`
+	Lot     string     `bson:"lot,omitempty" json:"lot,omitempty"`
+	SKU     string     `bson:"sku,omitempty" json:"sku,omitempty"`
 }
 
-// MarshalJSON returns bytes of JSON-type.
-func (m *Metric) MarshalJSON() ([]byte, error) {
-	mm := map[string]interface{}{
-		"metricID":      m.MetricID.String(),
-		"itemID":        m.ItemID.String(),
-		"deviceID":      m.DeviceID.String(),
-		"timestamp":     m.Timestamp,
-		"tempIn":        m.TempIn,
-		"humidity":      m.Humidity,
-		"ethylene":      m.Ethylene,
-		"carbonDioxide": m.CarbonDioxide,
-	}
+// // MarshalBSON returns bytes of BSON-type.
+// func (m *Metric) MarshalBSON() ([]byte, error) {
+// 	mm := map[string]interface{}{
+// 		"metricID":      m.MetricID.String(),
+// 		"itemID":        m.ItemID.String(),
+// 		"deviceID":      m.DeviceID.String(),
+// 		"timestamp":     m.Timestamp,
+// 		"tempIn":        m.TempIn,
+// 		"humidity":      m.Humidity,
+// 		"ethylene":      m.Ethylene,
+// 		"carbonDioxide": m.CarbonDioxide,
+// 	}
 
-	if m.ID != objectid.NilObjectID {
-		mm["_id"] = m.ID.Hex()
-	}
+// 	if m.ID != objectid.NilObjectID {
+// 		mm["_id"] = m.ID
+// 	}
 
-	mar, err := json.Marshal(mm)
-	if err != nil {
-		err = errors.Wrap(err, "MarshalJSON Error")
-	}
-	return mar, err
-}
+// 	mar, err := bson.Marshal(mm)
+// 	if err != nil {
+// 		err = errors.Wrap(err, "MarshalJSON Error")
+// 	}
+// 	return mar, err
+// }
+
+// // MarshalJSON returns bytes of JSON-type.
+// func (m *Metric) MarshalJSON() ([]byte, error) {
+// 	mm := map[string]interface{}{
+// 		"metricID":      m.MetricID.String(),
+// 		"itemID":        m.ItemID.String(),
+// 		"deviceID":      m.DeviceID.String(),
+// 		"timestamp":     m.Timestamp,
+// 		"tempIn":        m.TempIn,
+// 		"humidity":      m.Humidity,
+// 		"ethylene":      m.Ethylene,
+// 		"carbonDioxide": m.CarbonDioxide,
+// 	}
+
+// 	if m.ID != objectid.NilObjectID {
+// 		mm["_id"] = m.ID.Hex()
+// 	}
+
+// 	mar, err := json.Marshal(mm)
+// 	if err != nil {
+// 		err = errors.Wrap(err, "MarshalJSON Error")
+// 	}
+// 	return mar, err
+// }
 
 // UnmarshalBSON returns BSON-type from bytes.
-func (m *Metric) UnmarshalBSON(in []byte) error {
-	metMap := make(map[string]interface{})
-	err := bson.Unmarshal(in, metMap)
-	if err != nil {
-		err = errors.Wrap(err, "UnmarshalBSON Error")
-		return err
-	}
+// func (m *Metric) UnmarshalBSON(in []byte) error {
+// 	metMap := make(map[string]interface{})
+// 	err := bson.Unmarshal(in, metMap)
+// 	if err != nil {
+// 		err = errors.Wrap(err, "UnmarshalBSON Error")
+// 		return err
+// 	}
 
-	err = m.unmarshalFromMap(metMap)
-	if err != nil {
-		err = errors.Wrap(err, "UnmarshalBSON Error")
-	}
-	return err
-}
+// 	err = m.unmarshalFromMap(metMap)
+// 	if err != nil {
+// 		err = errors.Wrap(err, "UnmarshalBSON Error")
+// 	}
+// 	return err
+// }
 
-// UnmarshalJSON returns JSON-type from bytes.
-func (m *Metric) UnmarshalJSON(in []byte) error {
-	metMap := make(map[string]interface{})
-	err := json.Unmarshal(in, &metMap)
-	if err != nil {
-		err = errors.Wrap(err, "UnmarshalBSON Error")
-		return err
-	}
+// // UnmarshalJSON returns JSON-type from bytes.
+// func (m *Metric) UnmarshalJSON(in []byte) error {
+// 	metMap := make(map[string]interface{})
+// 	err := json.Unmarshal(in, &metMap)
+// 	if err != nil {
+// 		err = errors.Wrap(err, "UnmarshalBSON Error")
+// 		return err
+// 	}
 
-	err = m.unmarshalFromMap(metMap)
-	if err != nil {
-		err = errors.Wrap(err, "UnmarshalJSON Error")
-	}
-	return err
-}
+// 	err = m.unmarshalFromMap(metMap)
+// 	if err != nil {
+// 		err = errors.Wrap(err, "UnmarshalJSON Error")
+// 	}
+// 	return err
+// }
 
 func (m *Metric) unmarshalFromMap(metMap map[string]interface{}) error {
 	var err error
