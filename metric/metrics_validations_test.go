@@ -48,7 +48,7 @@ var _ = Describe("MetricAggregate", func() {
 			marshalMetric, err := json.Marshal(metric)
 			Expect(err).ToNot(HaveOccurred())
 
-			timeUUID, err := uuuid.NewV1()
+			uuid, err := uuuid.NewV4()
 			Expect(err).ToNot(HaveOccurred())
 			cid, err := uuuid.NewV4()
 			Expect(err).ToNot(HaveOccurred())
@@ -56,13 +56,13 @@ var _ = Describe("MetricAggregate", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			mockEvent := &model.Event{
-				Action:        "insert",
+				EventAction:   "insert",
 				CorrelationID: cid,
 				AggregateID:   1,
 				Data:          marshalMetric,
-				Timestamp:     time.Now(),
+				NanoTime:      time.Now().UnixNano(),
 				UserUUID:      uid,
-				TimeUUID:      timeUUID,
+				UUID:          uuid,
 				Version:       3,
 				YearBucket:    2018,
 			}
@@ -71,7 +71,7 @@ var _ = Describe("MetricAggregate", func() {
 			Expect(kr.CorrelationID).To(Equal(mockEvent.CorrelationID))
 			Expect(kr.Error).ToNot(BeEmpty())
 			Expect(kr.ErrorCode).To(Equal(int16(InternalError)))
-			Expect(kr.UUID).To(Equal(mockEvent.TimeUUID))
+			Expect(kr.UUID).To(Equal(mockEvent.UUID))
 		})
 
 		It("should return error if deviceID is empty", func() {
@@ -79,7 +79,7 @@ var _ = Describe("MetricAggregate", func() {
 			marshalMetric, err := json.Marshal(metric)
 			Expect(err).ToNot(HaveOccurred())
 
-			timeUUID, err := uuuid.NewV1()
+			uuid, err := uuuid.NewV4()
 			Expect(err).ToNot(HaveOccurred())
 			cid, err := uuuid.NewV4()
 			Expect(err).ToNot(HaveOccurred())
@@ -87,13 +87,13 @@ var _ = Describe("MetricAggregate", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			mockEvent := &model.Event{
-				Action:        "insert",
+				EventAction:   "insert",
 				CorrelationID: cid,
 				AggregateID:   1,
 				Data:          marshalMetric,
-				Timestamp:     time.Now(),
+				NanoTime:      time.Now().UnixNano(),
 				UserUUID:      uid,
-				TimeUUID:      timeUUID,
+				UUID:          uuid,
 				Version:       3,
 				YearBucket:    2018,
 			}
@@ -102,7 +102,7 @@ var _ = Describe("MetricAggregate", func() {
 			Expect(kr.CorrelationID).To(Equal(mockEvent.CorrelationID))
 			Expect(kr.Error).ToNot(BeEmpty())
 			Expect(kr.ErrorCode).To(Equal(int16(InternalError)))
-			Expect(kr.UUID).To(Equal(mockEvent.TimeUUID))
+			Expect(kr.UUID).To(Equal(mockEvent.UUID))
 		})
 	})
 })

@@ -111,16 +111,16 @@ var _ = Describe("MetricAggregate", func() {
 		Expect(err).ToNot(HaveOccurred())
 		uid, err := uuuid.NewV4()
 		Expect(err).ToNot(HaveOccurred())
-		timeUUID, err := uuuid.NewV1()
+		uuid, err := uuuid.NewV4()
 		Expect(err).ToNot(HaveOccurred())
 		mockEvent = &model.Event{
-			Action:        "insert",
+			EventAction:   "insert",
 			CorrelationID: cid,
 			AggregateID:   metric.AggregateID,
 			Data:          marshalMetric,
-			Timestamp:     time.Now(),
+			NanoTime:      time.Now().UnixNano(),
 			UserUUID:      uid,
-			TimeUUID:      timeUUID,
+			UUID:          uuid,
 			Version:       0,
 			YearBucket:    2018,
 		}
@@ -150,11 +150,11 @@ var _ = Describe("MetricAggregate", func() {
 				err := json.Unmarshal(msg.Value, kr)
 				Expect(err).ToNot(HaveOccurred())
 
-				if kr.UUID == mockEvent.TimeUUID {
+				if kr.UUID == mockEvent.UUID {
 					Expect(kr.Error).To(BeEmpty())
 					Expect(kr.ErrorCode).To(BeZero())
 					Expect(kr.CorrelationID).To(Equal(mockEvent.CorrelationID))
-					Expect(kr.UUID).To(Equal(mockEvent.TimeUUID))
+					Expect(kr.UUID).To(Equal(mockEvent.UUID))
 
 					metric := &metric.Metric{}
 					err = json.Unmarshal(kr.Result, metric)

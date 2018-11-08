@@ -66,8 +66,6 @@ func main() {
 	ioConfig := poll.IOConfig{
 		ReadConfig: poll.ReadConfig{
 			EnableInsert: true,
-			EnableUpdate: true,
-			EnableDelete: true,
 		},
 		KafkaConfig: *kc,
 		MongoConfig: *mc,
@@ -81,7 +79,7 @@ func main() {
 
 	for {
 		select {
-		case <-eventPoll.RoutinesCtx().Done():
+		case err := <-eventPoll.Wait():
 			err = errors.New("service-context closed")
 			log.Fatalln(err)
 
