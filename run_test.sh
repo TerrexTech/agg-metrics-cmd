@@ -53,7 +53,7 @@ sleep 5
 
 docker ps -a
 
-docker-compose up --exit-code-from  agg-metrics-cmd-test
+docker-compose up --exit-code-from agg-metrics-cmd-test
 rc=$?
 if [[ $rc != 0 ]]
   docker ps -a
