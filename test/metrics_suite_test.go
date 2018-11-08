@@ -89,21 +89,18 @@ var _ = Describe("MetricAggregate", func() {
 		itemID, err := uuuid.NewV4()
 		Expect(err).ToNot(HaveOccurred())
 
-		timestamp := time.Now().Unix()
-		Expect(err).ToNot(HaveOccurred())
-
 		mockMetric = &metric.Metric{
 			MetricID:      metricID,
 			ItemID:        itemID,
 			DeviceID:      deviceID,
-			Timestamp:     timestamp,
+			SKU:           "test-sku",
+			Timestamp:     time.Now().Unix(),
 			TempIn:        23.5,
 			Humidity:      45,
 			Ethylene:      50,
 			CarbonDioxide: 400,
 		}
 
-		log.Println(mockMetric.DeviceID)
 		marshalMetric, err := json.Marshal(mockMetric)
 		Expect(err).ToNot(HaveOccurred())
 

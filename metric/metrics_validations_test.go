@@ -29,13 +29,11 @@ var _ = Describe("MetricAggregate", func() {
 			itemID, err := uuuid.NewV4()
 			Expect(err).ToNot(HaveOccurred())
 
-			timestamp := time.Now().Unix()
-			Expect(err).ToNot(HaveOccurred())
-
 			metric = &Metric{
 				ItemID:        itemID,
 				DeviceID:      deviceID,
-				Timestamp:     timestamp,
+				SKU:           "test-sku",
+				Timestamp:     time.Now().Unix(),
 				TempIn:        23.5,
 				Humidity:      45,
 				Ethylene:      50,
@@ -76,6 +74,37 @@ var _ = Describe("MetricAggregate", func() {
 
 		It("should return error if deviceID is empty", func() {
 			metric.DeviceID = uuuid.UUID{}
+			marshalMetric, err := json.Marshal(metric)
+			Expect(err).ToNot(HaveOccurred())
+
+			uuid, err := uuuid.NewV4()
+			Expect(err).ToNot(HaveOccurred())
+			cid, err := uuuid.NewV4()
+			Expect(err).ToNot(HaveOccurred())
+			uid, err := uuuid.NewV4()
+			Expect(err).ToNot(HaveOccurred())
+
+			mockEvent := &model.Event{
+				EventAction:   "insert",
+				CorrelationID: cid,
+				AggregateID:   1,
+				Data:          marshalMetric,
+				NanoTime:      time.Now().UnixNano(),
+				UserUUID:      uid,
+				UUID:          uuid,
+				Version:       3,
+				YearBucket:    2018,
+			}
+			kr := Insert(nil, mockEvent)
+			Expect(kr.AggregateID).To(Equal(mockEvent.AggregateID))
+			Expect(kr.CorrelationID).To(Equal(mockEvent.CorrelationID))
+			Expect(kr.Error).ToNot(BeEmpty())
+			Expect(kr.ErrorCode).To(Equal(int16(InternalError)))
+			Expect(kr.UUID).To(Equal(mockEvent.UUID))
+		})
+
+		It("should return error if SKU is empty", func() {
+			metric.SKU = ""
 			marshalMetric, err := json.Marshal(metric)
 			Expect(err).ToNot(HaveOccurred())
 
