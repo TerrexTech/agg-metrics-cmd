@@ -19,6 +19,7 @@ type Metric struct {
 	MetricID      uuuid.UUID        `bson:"metricID,omitempty" json:"metricID,omitempty"`
 	ItemID        uuuid.UUID        `bson:"itemID,omitempty" json:"itemID,omitempty"`
 	DeviceID      uuuid.UUID        `bson:"deviceID,omitempty" json:"deviceID,omitempty"`
+	SKU           string            `bson:"sku,omitempty" json:"sku,omitempty"`
 	Timestamp     int64             `bson:"timestamp,omitempty" json:"timestamp,omitempty"`
 	TempIn        float64           `bson:"tempIn,omitempty" json:"tempIn,omitempty"`
 	Humidity      float64           `bson:"humidity,omitempty" json:"humidity,omitempty"`
@@ -32,6 +33,7 @@ func (m *Metric) MarshalBSON() ([]byte, error) {
 		"metricID":      m.MetricID.String(),
 		"itemID":        m.ItemID.String(),
 		"deviceID":      m.DeviceID.String(),
+		"sku":           m.SKU,
 		"timestamp":     m.Timestamp,
 		"tempIn":        m.TempIn,
 		"humidity":      m.Humidity,
@@ -45,7 +47,7 @@ func (m *Metric) MarshalBSON() ([]byte, error) {
 
 	mar, err := bson.Marshal(mm)
 	if err != nil {
-		err = errors.Wrap(err, "MarshalJSON Error")
+		err = errors.Wrap(err, "MarshalBSON Error")
 	}
 	return mar, err
 }
@@ -57,6 +59,7 @@ func (m *Metric) MarshalJSON() ([]byte, error) {
 		"itemID":        m.ItemID.String(),
 		"deviceID":      m.DeviceID.String(),
 		"timestamp":     m.Timestamp,
+		"sku":           m.SKU,
 		"tempIn":        m.TempIn,
 		"humidity":      m.Humidity,
 		"ethylene":      m.Ethylene,
@@ -95,7 +98,7 @@ func (m *Metric) UnmarshalJSON(in []byte) error {
 	metMap := make(map[string]interface{})
 	err := json.Unmarshal(in, &metMap)
 	if err != nil {
-		err = errors.Wrap(err, "UnmarshalBSON Error")
+		err = errors.Wrap(err, "UnmarshalJSON Error")
 		return err
 	}
 
@@ -154,6 +157,13 @@ func (m *Metric) unmarshalFromMap(metMap map[string]interface{}) error {
 		if err != nil {
 			err = errors.Wrap(err, "Error while asserting deviceID")
 			return err
+		}
+	}
+
+	if metMap["sku"] != nil {
+		m.SKU, assertOK = metMap["sku"].(string)
+		if !assertOK {
+			return errors.New("Error while asserting SKU")
 		}
 	}
 

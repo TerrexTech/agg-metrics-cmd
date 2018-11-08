@@ -71,6 +71,18 @@ func Insert(collection *mongo.Collection, event *model.Event) *model.KafkaRespon
 		}
 	}
 
+	if metric.SKU == "" {
+		err := errors.New("Insert: SKU is required")
+		log.Println(err)
+		return &model.KafkaResponse{
+			AggregateID:   event.AggregateID,
+			CorrelationID: event.CorrelationID,
+			Error:         err.Error(),
+			ErrorCode:     InternalError,
+			UUID:          event.UUID,
+		}
+	}
+
 	insertResult, err := collection.InsertOne(metric)
 	if err != nil {
 		err = errors.Wrap(err, "Insert: Error Inserting Metric into Mongo")
